@@ -1,15 +1,48 @@
-import { useParams } from 'react-router-dom'
+//imports
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
+//component
 function AlbumView() {
-    const { id } = useParams()
+  const [albumData, setAlbumData] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
+  const navButtons = () => {
     return (
-        <div>
-            <h2>The id passed was: {id}</h2>
-            <p>Album Data Goes Here!</p>
-        </div>
-    )
+      <div className="navButtons">
+        <button onClick={() => navigate(-1)}>Back</button>|
+        <button onClick={() => navigate("/")}>Home</button>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    const API_URL = `http://localhost:4000/song/${id}`;
+    const fetchData = async () => {
+      const response = await fetch(API_URL);
+      const resData = await response.json();
+      setAlbumData(resData.results);
+    };
+    fetchData();
+  }, [id]);
+
+  const justSongs = albumData.filter((entry) => entry.wrapperType === "track");
+  const renderSongs = justSongs.map((song, i) => {
+    return (
+      <div key={i} className="listSongs">
+        <p>{song.trackName}</p>
+      </div>
+    );
+  });
+
+  return (
+    <div>
+      {navButtons()}
+      {renderSongs}
+    </div>
+  );
 }
 
-
-export default AlbumView
+//export
+export default AlbumView;
